@@ -5,21 +5,27 @@
 ]]
 local M = {}
 
+local cjson = require 'cjson.safe'
+
 
 local function get_content_length(message)
 	local _,_, b = string.find(message, "Content*-Length:%s*(%d+)")
 	return tonumber(b)
 end
 
-function decode (message)
-	local content_length = get_content_length(message)
-	if not content_length then
-		return nil, "Mal-formed request: There is no Content-Lenth field"
-	end
+function DecodeMessage(message)
 	local start, finish = string.find(message, "\r\n\r\n")
-	local header = string.sub(message, 1, start)
-	local request = string.sub(message, finish, content_length)
-	return header, request
+	if not finish then
+		return nil, "Error: did not find header separator"
+	end
+	local header = string.sub(message, 1, start - 1)
+	local content_length, err = get_content_length(header)
+	if err then
+		return nil, "Error: Could not find Content-Length value"
+	end
+	local request = string.sub(message, finish + 1, finish + content_length)
+	return cjson.decode(request)
+
 end
 
 -- Export private functions for testing
