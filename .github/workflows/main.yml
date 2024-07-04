@@ -1,10 +1,24 @@
 name: Busted
 on: [push, pull_request]
+
 jobs:
-  sile:
+  test:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Run Busted
-        uses: lunarmodules/busted@v2.2.0
+    - uses: actions/checkout@master
+
+    - uses: leafo/gh-actions-lua@v10
+      with:
+        luaVersion: "5.4.1"
+
+    - uses: leafo/gh-actions-luarocks@v4
+
+    - name: Install dependencies
+      run: |
+        luarocks install busted
+        luarocks install lua-cjson
+
+    - name: Busted
+      run: |
+        busted -o utfTerminal
