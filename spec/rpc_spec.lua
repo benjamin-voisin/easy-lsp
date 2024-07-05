@@ -1,6 +1,6 @@
 _G._TEST = true
 
-local rpc = require 'rpc'
+local rpc = require 'easy-lsp.rpc'
 
 describe("Decoding functions", function ()
 	local message = "Content-Length: 15\r\n\r\n{\"Method\":true}"
