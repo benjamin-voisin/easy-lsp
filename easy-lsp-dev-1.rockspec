@@ -17,5 +17,6 @@ build = {
 		["easy-lsp"] = "easy-lsp/init.lua",
 		["easy-lsp.rpc"] = "easy-lsp/rpc.lua",
 		["easy-lsp.io"] = "easy-lsp/io.lua",
+		["easy-lsp.log"] = "easy-lsp/log.lua",
 	}
 }
