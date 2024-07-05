@@ -7,6 +7,10 @@ function M.get_content_length(message)
 	return tonumber(b)
 end
 
+function M.DecodeJson(json)
+	return cjson.decode(json)
+end
+
 function M.DecodeMessage(message)
 	local start, finish = string.find(message, "\r\n\r\n")
 	if not finish then
@@ -18,7 +22,7 @@ function M.DecodeMessage(message)
 		return nil, "Error: Could not find Content-Length value"
 	end
 	local request = string.sub(message, finish + 1, finish + content_length)
-	return cjson.decode(request)
+	return M.DecodeJson(request)
 
 end
 
