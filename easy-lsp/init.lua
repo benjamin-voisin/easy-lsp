@@ -6,10 +6,32 @@ Log = require('easy-lsp.log')
 
 Log.outfile = "/tmp/easy-lsp.log"
 
+M.name = "easy-lsp"
+M.version = "0.1.0"
+
+M.HandleRequest = {}
+
+function M.HandleRequest.initialize (request)
+	local response = {
+		id = request.id,
+		result = {
+			capabilities = M.capabilities,
+			serverInfo = {
+				name = M.name,
+				version = M.version,
+			}
+		}
+	}
+	local response_message = rpc.EncodeMessage(response)
+	Log.info("Response: ", response_message)
+	return response_message
+end
+
 function M.start ()
 	while true do
 		local request = lsp_io.GetMessage()
 		if not request then
+			Log.error("We did not receive a proper message")
 			error("Problème we did not receive a message")
 		end
 		local err
@@ -18,22 +40,14 @@ function M.start ()
 			error("Problème: Decoding didn't work properly: "..err)
 		end
 		Log.info("Méthode: ", request.method)
-		if request.method == "initialize" then
-			local response = {
-				id = request.id,
-				result = {
-					capabilities = {},
-					serverInfo = {
-						name = "Squirrel-Prover-LSP",
-						version = "0.1.0",
-					}
-				}
-			}
-			local response_message = rpc.EncodeMessage(response)
-			Log.info("Response: ", response_message)
-			lsp_io.SendMessage(response_message)
-		else
-			Log.warn("Cannot treat this message")
+		if request.id then
+			-- We are in a "request" situation
+			if M.HandleRequest[request.method] then
+				local response = M.HandleRequest[request.method](request)
+				lsp_io.SendMessage(response)
+			else
+				Log.error("Method ", request.method, " not implemented")
+			end
 		end
 	end
 end
