@@ -27,6 +27,19 @@ function M.HandleRequest.initialize (request)
 	return response_message
 end
 
+function M.HandleRequest.default (request)
+	local response = {
+		id = request.id,
+		error = {
+			code = -32803,
+			message = "This method has not been implemented in the LSP."
+		}
+	}
+	local response_message = rpc.EncodeMessage(response)
+	Log.info("Response: ", response_message)
+	return response_message
+end
+
 function M.start ()
 	while true do
 		local request = lsp_io.GetMessage()
@@ -47,6 +60,7 @@ function M.start ()
 				lsp_io.SendMessage(response)
 			else
 				Log.error("Method ", request.method, " not implemented")
+				M.HandleRequest.default(request)
 			end
 		end
 	end
