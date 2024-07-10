@@ -86,6 +86,8 @@ function M.start ()
 		else
 			if M.HandleNotifications[request.method] then
 				M.HandleNotifications[request.method](request)
+			else
+				Log.error("Notification of method ", request.method, " is not implemented")
 			end
 		end
 	end
