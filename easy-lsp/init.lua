@@ -23,9 +23,7 @@ function M.HandleRequest.initialize (request)
 			}
 		}
 	}
-	local response_message = rpc.EncodeMessage(response)
-	Log.info("Response: ", response_message)
-	return response_message
+	return response
 end
 
 function M.HandleRequest.default (request)
@@ -36,9 +34,7 @@ function M.HandleRequest.default (request)
 			message = "This method has not been implemented in the LSP."
 		}
 	}
-	local response_message = rpc.EncodeMessage(response)
-	Log.info("Response: ", response_message)
-	return response_message
+	return response
 end
 
 function M.HandleRequest.shutdown (request)
@@ -47,9 +43,7 @@ function M.HandleRequest.shutdown (request)
 		id = request.id,
 		result = {}
 	}
-	local response_message = rpc.EncodeMessage(response)
-	Log.info("Response: ", response_message)
-	return response_message
+	return response
 end
 
 function M.HandleNotifications.exit ()
@@ -68,26 +62,29 @@ function M.start ()
 			Log.error("We did not receive a proper message")
 			error("Problème we did not receive a message")
 		end
-		local err
-		request, err = rpc.DecodeJson(request)
+		local parsed_request, err = rpc.DecodeJson(request)
 		if err then
-			error("Problème: Decoding didn't work properly: "..err)
+			error("Problème: Decoding didn't work properly: "..err.." Message received: "..request)
 		end
-		Log.info("Méthode: ", request.method)
-		if request.id then
+		if parsed_request.id then
 			-- We are in a "request" situation
-			if M.HandleRequest[request.method] then
-				local response = M.HandleRequest[request.method](request)
-				lsp_io.SendMessage(response)
+			Log.info("Received a request with method ", parsed_request.method)
+			if M.HandleRequest[parsed_request.method] then
+				local response = M.HandleRequest[parsed_request.method](parsed_request)
+				local response_message = rpc.EncodeMessage(response)
+				Log.info("Response: ", response_message)
+				lsp_io.SendMessage(response_message)
 			else
-				Log.error("Method ", request.method, " not implemented")
-				M.HandleRequest.default(request)
+				Log.error("Method ", parsed_request.method, " not implemented")
+				M.HandleRequest.default(parsed_request)
 			end
 		else
-			if M.HandleNotifications[request.method] then
-				M.HandleNotifications[request.method](request)
+			-- We receive a notification
+			Log.info("Received a notification with method ", parsed_request.method)
+			if M.HandleNotifications[parsed_request.method] then
+				M.HandleNotifications[parsed_request.method](parsed_request)
 			else
-				Log.error("Notification of method ", request.method, " is not implemented")
+				Log.error("Notification of method ", parsed_request.method, " is not implemented")
 			end
 		end
 	end
