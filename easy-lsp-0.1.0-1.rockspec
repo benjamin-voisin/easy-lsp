@@ -1,15 +1,18 @@
+rockspec_format = "3.0"
 package = "easy-lsp"
-version = "dev-1"
+version = "0.1.0-1"
 source = {
 	url = "git+ssh://git@github.com/benjamin-voisin/easy-lsp.git"
 }
 description = {
-	summary = "the goal is to write a lua lib that makes the implementation of an LSP as easy as possible.",
-	detailed = [[
-the goal is to write a lua lib that makes the implementation of an LSP as easy as possible.
-]],
-	homepage = "*** please enter a project homepage ***",
+	summary = "Get a working LSP within minutes!",
+	detailed = "A simple lib that helps you build an LSP. Only focus on whats important.",
+	homepage = "",
 	license = "CC-BY-SA-4.0"
+}
+dependencies = {
+	"lua >= 5.1",
+	"lua-cjson >= 2.1.0",
 }
 build = {
 	type = "builtin",
@@ -19,4 +22,7 @@ build = {
 		["easy-lsp.io"] = "easy-lsp/io.lua",
 		["easy-lsp.log"] = "easy-lsp/log.lua",
 	}
+}
+test = {
+   type = "busted",
 }
