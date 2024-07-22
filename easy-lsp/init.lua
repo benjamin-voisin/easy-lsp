@@ -14,6 +14,10 @@ M.HandleNotifications = {}
 M.FileContent = {}
 
 function M.HandleRequest.initialize (request)
+	M.client = {
+		name = request.params.clientInfo.name,
+		version = request.params.clientInfo.version,
+	}
 	local response = {
 		id = request.id,
 		result = {
@@ -48,11 +52,16 @@ function M.HandleRequest.shutdown (request)
 end
 
 function M.HandleNotifications.exit ()
+	Log.info("Exiting...")
 	if M.running then
 		os.exit(1)
 	else
 		os.exit(0)
 	end
+end
+
+function M.HandleNotifications.initialized()
+	Log.info("Connected with ", M.client.name, M.client.version)
 end
 
 M.HandleNotifications["textDocument/didOpen"] = function (notification)
