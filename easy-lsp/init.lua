@@ -60,6 +60,21 @@ function M.HandleNotifications.exit ()
 	end
 end
 
+M.HandleRequest["textDocument/completion"] = function (request)
+	Log.info(rpc.EncodeMessage(request))
+	if M.generate_completion then
+		local response = {
+			id = request.id,
+			result = {
+				items = M.generate_completion(request.params)
+			},
+		}
+		return response
+	else
+		return M.HandleRequest.default(request)
+	end
+end
+
 function M.HandleNotifications.initialized()
 	Log.info("Connected with ", M.client.name, M.client.version)
 end
