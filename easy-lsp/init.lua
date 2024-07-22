@@ -11,6 +11,7 @@ M.version = "0.1.0"
 
 M.HandleRequest = {}
 M.HandleNotifications = {}
+M.FileContent = {}
 
 function M.HandleRequest.initialize (request)
 	local response = {
@@ -52,6 +53,21 @@ function M.HandleNotifications.exit ()
 	else
 		os.exit(0)
 	end
+end
+
+M.HandleNotifications["textDocument/didOpen"] = function (notification)
+	M.FileContent[notification.params.textDocument.uri] = notification.params.textDocument.text
+end
+
+M.HandleNotifications["textDocument/didChange"] = function (notification)
+	M.FileContent[notification.params.textDocument.uri] = notification.params.contentChanges[1].text
+end
+
+M.HandleNotifications["textDocument/didClose"] = function (notification)
+	M.FileContent[notification.params.textDocument.uri] = nil
+end
+
+M.HandleNotifications["textDocument/didSave"] = function ()
 end
 
 function M.start ()
